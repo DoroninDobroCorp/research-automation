@@ -1,0 +1,18 @@
+# Chrome profiles (large, contain sessions)
+config/chrome_profiles/
+config/camoufox_profiles/
+
+# Chrome state files (contain PIDs)
+config/.chrome_state.json
+config/.chrome_perplexity_state.json
+
+# Screenshots
+output/*.png
+
+# Task tracking  
+.parallel_tasks.json
+
+# Environment secrets
+config/keys.env
+__pycache__/
+venv/

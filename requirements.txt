@@ -1,0 +1,7 @@
+# Research Automation — Python Dependencies
+# Install: pip install -r requirements.txt
+
+# Browser automation (Gemini + Perplexity runners)
+playwright>=1.40.0
+
+# No other external dependencies — uses only stdlib (urllib, json, argparse, etc.)
