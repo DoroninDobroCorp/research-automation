@@ -1,0 +1,31 @@
+Conduct deep research on the most effective and scientifically-proven methods to learn English from B1 (intermediate) to C1 (advanced) level as fast as possible.
+
+Focus areas:
+
+1. **Speed-optimized learning strategies**: What approaches, techniques, and daily routines have been proven (by research, studies, or large-scale user data) to accelerate English learning from B1 to C1? Include specific time estimates (e.g., hours needed, typical timeline).
+
+2. **App features that dramatically boost learning speed**: What features should a language learning app include to maximize the speed of progression from B1 to C1? Analyze what makes apps like Anki, LingQ, Duolingo, Speechling, Elsa Speak, and others effective or ineffective at this level. What's missing in current apps?
+
+3. **Vocabulary acquisition at B1-C1 level**: Best methods for learning 3000-8000 word families needed for C1. Spaced repetition parameters, context-based learning, collocations, academic word lists. How to make vocabulary stick permanently.
+
+4. **Grammar mastery for C1**: Which grammar structures separate B1 from C1? Most effective ways to internalize advanced grammar (conditionals, subjunctive, complex tenses, discourse markers, hedging language).
+
+5. **Listening comprehension acceleration**: How to go from understanding simple conversations to understanding native-speed podcasts, movies, academic lectures. Specific techniques: narrow listening, extensive listening, dictation, shadowing.
+
+6. **Speaking fluency breakthrough**: Methods to overcome the intermediate plateau. Role of output practice, thinking in English, conversation strategies, pronunciation training, prosody/intonation work.
+
+7. **Reading and writing at C1**: How to develop the ability to read complex texts and write structured essays/reports. Academic English skills.
+
+8. **Immersion techniques for non-English environments**: How to create an effective English immersion environment when living in a non-English-speaking country. Digital immersion, content consumption strategies, language exchange optimization.
+
+9. **AI and technology-enhanced learning**: How can AI tutors, speech recognition, adaptive learning algorithms, and LLM-based conversation partners accelerate the B1→C1 journey? What does the latest research say?
+
+10. **Common mistakes and plateaus**: What are the most common reasons people get stuck at B1-B2 and never reach C1? How to avoid/overcome these plateaus?
+
+For each area, provide:
+- Specific, actionable recommendations
+- Scientific evidence or research citations where available
+- Estimated impact on learning speed
+- How this could be implemented as an app feature
+
+Be extremely thorough. Cite sources with URLs and dates. Include data from linguistics research, SLA (Second Language Acquisition) studies, polyglot community insights, and real-world app analytics where available.

@@ -1,3 +1,6 @@
+# macOS
+.DS_Store
+
 # Chrome profiles (large, contain sessions)
 config/chrome_profiles/
 config/camoufox_profiles/
