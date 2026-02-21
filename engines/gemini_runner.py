@@ -449,6 +449,13 @@ def navigate_deep_research(page):
     """Activate Deep Research via Tools menu → Deep Research.
     
     Always starts a fresh chat to avoid old buttons interfering.
+    
+    KNOWN ISSUE (Feb 2026): Google moved Deep Research from Tools menu to "Думающая" 
+    (Thinking) mode. Pro mode switched to Gemini 3.1 and Deep Research was removed.
+    This function needs to be updated to:
+    1. Select "Думающая" mode instead of "Pro"
+    2. Deep Research should be available there
+    TODO: Fix mode selection logic
     """
     print("   → Deep Research...")
     
