@@ -581,6 +581,27 @@ def _keep_alive():
         pass
 
 
+def _close_chrome(chrome_proc):
+    """Terminate Chrome and clean up state file."""
+    if STATE_FILE.exists():
+        try:
+            state = json.loads(STATE_FILE.read_text())
+            pid = state.get("pid")
+            if pid and _chrome_alive(pid):
+                os.kill(pid, 15)  # SIGTERM
+                print(f"   🧹 Chrome closed (PID: {pid})")
+            STATE_FILE.unlink()
+        except Exception as e:
+            print(f"   ⚠️  Chrome cleanup error: {e}")
+    elif chrome_proc:
+        try:
+            chrome_proc.terminate()
+            chrome_proc.wait(timeout=5)
+            print(f"   🧹 Chrome closed (PID: {chrome_proc.pid})")
+        except Exception:
+            pass
+
+
 # ── Main ───────────────────────────────────────────────────
 
 def main():
@@ -594,6 +615,8 @@ def main():
     parser.add_argument("--password")
     parser.add_argument("--dump-ui", action="store_true")
     parser.add_argument("--no-wait", action="store_true")
+    parser.add_argument("--close-browser", action="store_true",
+                        help="Close Chrome after completion (used by pipeline)")
     args = parser.parse_args()
 
     email, password = _load_creds(args.email, args.password)
@@ -668,6 +691,9 @@ def main():
         print(f"\n❌ Error: {e}")
         import traceback
         traceback.print_exc()
+    finally:
+        if args.close_browser:
+            _close_chrome(chrome_proc)
 
 
 if __name__ == "__main__":

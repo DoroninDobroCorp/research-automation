@@ -1,6 +1,12 @@
 # macOS
 .DS_Store
 
+# Python
+__pycache__/
+*.pyc
+venv/
+.pytest_cache/
+
 # Chrome profiles (large, contain sessions)
 config/chrome_profiles/
 config/camoufox_profiles/
@@ -9,13 +15,14 @@ config/camoufox_profiles/
 config/.chrome_state.json
 config/.chrome_perplexity_state.json
 
-# Screenshots
-output/*.png
-
-# Task tracking  
-.parallel_tasks.json
-
-# Environment secrets
+# Secrets
 config/keys.env
-__pycache__/
-venv/
+
+# Output (generated files)
+output/*.png
+output/raw/
+output/consolidated/
+output/tasks/
+
+# Task tracking
+.parallel_tasks.json

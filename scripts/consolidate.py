@@ -20,9 +20,9 @@ from engines.base import setup_logger
 
 log = setup_logger("consolidate")
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-RAW_DIR = PROJECT_ROOT / "research-automation" / "output" / "raw"
-OUTPUT_DIR = PROJECT_ROOT / "research-c2c-copilot"
+MODULE_ROOT = Path(__file__).parent.parent
+RAW_DIR = MODULE_ROOT / "output" / "raw"
+OUTPUT_DIR = MODULE_ROOT / "output" / "consolidated"
 
 # Mapping: prompt_id → (topic_slug, category, output_name)
 TOPICS: dict[str, tuple[str, str, str]] = {
@@ -153,7 +153,7 @@ Requirements:
             ["copilot", "--allow-all", "--model", "claude-opus-4.6",
              "-p", f"@{prompt_file}"],
             capture_output=True, text=True, timeout=600,
-            cwd=str(PROJECT_ROOT)
+            cwd=str(MODULE_ROOT)
         )
         if result.returncode == 0 and len(result.stdout) > 500:
             out_file.write_text(result.stdout)

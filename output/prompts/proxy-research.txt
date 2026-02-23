@@ -1,0 +1,40 @@
+Research: Proxy Services for Multi-Accounting & Cheap IP Rotation (2024–2026)
+
+I need a comprehensive comparison of proxy providers across TWO distinct use cases:
+
+## Category A — Premium Proxies for Bookmaker Multi-Accounting
+
+Requirements: residential/mobile proxies, clean IP reputation, geo-targeting by country/city, sticky sessions, low detection rate on betting platforms (Bet365, 1xBet, Pinnacle, William Hill, Betfair, Marathon, Fonbet, etc.). Must survive anti-fraud systems (Iovation, MaxMind, DeviceAtlas, GeoComply).
+
+Budget: willing to pay for quality, but find the best price/quality ratio.
+
+Deliverables:
+- Top 10-15 providers ranked by: price per GB/port, quality score, detection rate, geo coverage
+- Real user reviews and forum feedback (BHW, MPSocial, AntiDetect communities, 4PDA, Lolz.guru)
+- Comparison: residential vs mobile vs ISP proxies for betting
+- Which antidetect browsers work best with which proxies (Dolphin Anty, GoLogin, AdsPower, Multilogin)
+- Known proxy+antidetect combos that work specifically for betting multi-accounting
+
+## Category B — Ultra-Cheap / Free IP Rotation
+
+Requirements: just change IP, no quality requirements. Can be datacenter, shared, rotating — anything that works and costs near-zero. Free tiers, trial exploitation, cheap rotating plans, SOCKS5 lists, free proxy APIs, VPN with rotating IPs.
+
+Budget: $0–5/month maximum, ideally free.
+
+Deliverables:
+- Sources list ranked by cost (free first), then by reliability
+- Free proxy APIs and aggregators
+- Cheap rotating datacenter proxies ($1-5/mo range)
+- Free VPN services with IP rotation
+- How to set up own proxy on cheap VPS ($3-5/mo)
+- Telegram bots/channels with free proxy lists
+- GitHub repos with proxy scrapers/checkers
+
+## For BOTH categories provide:
+- Specific provider names with current pricing (2025–2026)
+- Links to official sites
+- Forum/community reviews and reputation scores
+- Known tricks to reduce cost (bulk discounts, referral programs, reseller panels, trial stacking)
+- Red flags and scam warnings (which providers to avoid and why)
+- Speed/latency benchmarks where available
+- API availability for automated rotation

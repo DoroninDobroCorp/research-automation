@@ -1,180 +1,151 @@
-# Research Automation Module
+# 🔬 Research Automation
 
-Автоматизация tri-source deep research для AI Adult Platform.
+Автоматический deep research из трёх источников с консолидацией через Claude Opus.
 
-> **Status:** v1.0 — Production-ready for C2C Creator Copilot research
-> **Date:** July 2025
-> **Author:** Vladimir (PM)
-> **BMAD Story:** RESEARCH-001-S2 (see `_bmad-output/implementation-artifacts/stories/research-001-epic.md`)
+```
+Промпт → [Parallel AI + Gemini + Perplexity] → 3 raw-файла → Claude Opus → итоговый отчёт
+```
 
-## Scope & Purpose
+## Движки
 
-Automates the tri-source research methodology:
-1. **Parallel AI** (API) — ultra8x deep research with key rotation
-2. **Gemini Deep Research** (browser automation) — Chrome + Playwright + CDP
-3. **Perplexity Deep Research** (browser automation) — Chrome + Playwright
+| Движок | Метод | Время | Стоимость |
+|:-------|:------|:------|:----------|
+| **Parallel AI** | REST API (ultra8x) | 5–30 мин | ~$2.40/запрос |
+| **Gemini Deep Research** | Chrome + Playwright | 3–10 мин | бесплатно (лимиты) |
+| **Perplexity Deep Research** | Chrome + Playwright | 3–10 мин | бесплатно (Pro) |
 
-**Input:** Research prompts (`docs/research-prompts.md`)
-**Output:** Raw markdown research files → consolidated analyses → decision packets
+Консолидация: **Copilot CLI** (Claude Opus 4.6) — объединяет все источники в один отчёт.
 
-### Acceptance Criteria
-- ✅ Each engine produces markdown research file per prompt
-- ✅ Key rotation handles API rate limits / expired keys automatically
-- ✅ Orchestrator tracks completed vs pending research across all engines
-- ✅ Consolidation script merges 3 sources into single analysis via Claude Opus
-- ✅ All secrets (.env, Chrome profiles) excluded from git
-
-## Prerequisites
+## Быстрый старт
 
 ```bash
-# Python 3.10+
-python3 --version
-
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
+# 1. Зависимости
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-
-# Install Playwright browsers (for Gemini/Perplexity runners)
 python -m playwright install chromium
 
-# Configure API keys
+# 2. Ключи
 cp config/keys.env.example config/keys.env
-# Edit config/keys.env with your Parallel AI keys
+# Заполни config/keys.env — API ключи и креды
+
+# 3. Запуск (все три источника + консолидация)
+python3 scripts/run_custom.py \
+  -f output/prompts/my-topic.txt \
+  -s my-topic
 ```
 
-## Quick Start
+## Использование
 
-### 1. Parallel AI (API — полностью автоматически)
+### Полный пайплайн (рекомендуемый способ)
 
 ```bash
-# Тест на одном промпте
-python3 engines/parallel_client.py --test
+# Все 3 движка параллельно → консолидация
+python3 scripts/run_custom.py -f prompt.txt -s my-topic
 
-# Свой промпт
-python3 engines/parallel_client.py \
-  --prompt "Research Section 230 application to AI adult content platforms" \
-  --output output/section-230_aiparallel.md
+# Только конкретные движки
+python3 scripts/run_custom.py -f prompt.txt -s my-topic --engines parallel,gemini
+
+# Не перезапускать уже готовые
+python3 scripts/run_custom.py -f prompt.txt -s my-topic --reuse-existing
+
+# Консолидировать даже если не все источники отработали
+python3 scripts/run_custom.py -f prompt.txt -s my-topic --allow-partial
 ```
 
-### 2. Gemini Deep Research (браузерная автоматизация)
+### Движки по отдельности
 
 ```bash
-# Первоначальная настройка — залогиниться в Google
-python3 engines/gemini_autoclicker.py --setup
+# Parallel AI
+python3 engines/parallel_client.py -p "Ваш запрос" -o output/result.md
 
-# Тест на одном промпте
-python3 engines/gemini_autoclicker.py --test
+# Gemini Deep Research
+python3 engines/gemini_runner.py -p "Ваш запрос" -o output/result.md
 
-# Свой промпт
-python3 engines/gemini_autoclicker.py \
-  --prompt "Research CSAM laws and AI generation 2024-2026" \
-  --output output/csam-protect-act_gemini.md
+# Perplexity Deep Research
+python3 engines/perplexity_runner.py -p "Ваш запрос" -o output/result.md
 ```
 
-### 3. Orchestrator (все движки)
+### Консолидация отдельно
 
 ```bash
-# Один топик через Parallel AI
-python3 scripts/run_research.py \
-  --topic section-230 \
-  --prompt "Research Section 230..." \
-  --engine parallel
-
-# Один топик через Gemini
-python3 scripts/run_research.py \
-  --topic section-230 \
-  --prompt "Research Section 230..." \
-  --engine gemini
+python3 scripts/consolidate_custom.py --slug my-topic
 ```
 
-## Структура
+## Структура проекта
 
 ```
 research-automation/
-├── README.md               ← Этот файл
-├── requirements.txt        ← Python dependencies
-├── config/
-│   └── keys.env            ← API ключи (НЕ в git)
 ├── engines/
-│   ├── __init__.py         ← Package exports (BaseEngine, ResearchMetrics)
-│   ├── base.py             ← BaseEngine ABC + ResearchMetrics + logging setup
-│   ├── parallel_client.py  ← Parallel AI Task API (ultra8x)
-│   ├── gemini_runner.py    ← Gemini Deep Research (Playwright + CDP)
-│   └── perplexity_runner.py ← Perplexity Deep Research (Playwright + CDP)
+│   ├── base.py               # BaseEngine ABC, метрики, логгирование
+│   ├── parallel_client.py    # Parallel AI Task API (ultra8x)
+│   ├── gemini_runner.py      # Gemini Deep Research (Playwright + CDP)
+│   └── perplexity_runner.py  # Perplexity Deep Research (Playwright + CDP)
 ├── scripts/
-│   ├── run_research.py     ← Orchestrator
-│   └── consolidate.py      ← Tri-source → opus_common merge
+│   ├── run_custom.py         # Полный пайплайн: движки → консолидация
+│   ├── run_research.py       # Оркестратор для batch-промптов
+│   ├── consolidate.py        # Консолидация для batch-промптов
+│   └── consolidate_custom.py # Консолидация для кастомных запросов
+├── config/
+│   ├── keys.env.example      # Шаблон для ключей
+│   └── keys.env              # API ключи и креды (не в git)
+├── output/
+│   ├── prompts/              # Файлы с промптами
+│   ├── raw/                  # Сырые результаты от каждого движка
+│   └── consolidated/         # Итоговые консолидированные отчёты
 ├── tests/
-│   └── test_automation.py  ← Unit tests (33 tests, pytest)
-├── output/                 ← Результаты (НЕ в git)
-└── .gitignore
+│   └── test_automation.py    # Unit-тесты (pytest)
+├── requirements.txt
+└── README.md
 ```
 
-## Architecture
+## Конфигурация (`config/keys.env`)
 
-All engines implement `BaseEngine` ABC from `engines/base.py`:
+```env
+# Parallel AI (https://platform.parallel.ai)
+PARALLEL_KEY_1=your-key-here
+PARALLEL_KEY_2=
+PARALLEL_KEY_3=
 
-```python
-from engines.base import BaseEngine
+# Google аккаунт для Gemini
+GEMINI_EMAIL=your@gmail.com
+GEMINI_PASSWORD=your-password
 
-class MyEngine(BaseEngine):
-    @property
-    def engine_name(self) -> str:
-        return "my-engine"
-
-    def run_research(self, prompt, output_file=None):
-        # ... implementation
+# Perplexity аккаунт
+PERPLEXITY_EMAIL=your@email.com
+PERPLEXITY_PASSWORD=your-password
 ```
 
-**Built-in features:**
-- `self.log` — named logger (replaces print statements)
-- `self.metrics` — `ResearchMetrics` tracking cost, timing, success rates
-- `run_tracked()` — wrapper that automatically records metrics per query
-- Metrics summary printed at end of each run (total cost, success rate, avg time)
+## Как работают браузерные движки
 
-## Parallel AI
+Gemini и Perplexity используют **реальный Chrome** через CDP (Chrome DevTools Protocol):
 
-- **API**: Task API с Deep Research
-- **Процессор**: `ultra8x` — самый глубокий ($2.40/запрос, 5мин-2ч)
-- **Ключи**: 3 ключа с автоматической ротацией
-- **Формат**: Markdown report с inline citations
-- **Если ключ кончился**: Скрипт автоматически переключится на следующий.
-  Если все 3 кончились — покажет ссылку на https://platform.parallel.ai
+1. Запускается Chrome с профилем → сохраняются куки между запусками
+2. Playwright подключается через CDP → управляет страницей
+3. Стелс-скрипты скрывают автоматизацию от ботодетекта
+4. После завершения Chrome закрывается (в пайплайне) или остаётся открытым (при ручном запуске)
 
-## Gemini Deep Research
+**Первый запуск** — может потребоваться ручной логин (2FA, капча). После этого куки сохранятся.
 
-- **Метод**: Playwright browser automation (Chrome)
-- **Режим**: Deep Research + Pro model
-- **Экспорт**: Share → Export to Google Docs → copy content
-- **Первый запуск**: `--setup` для сохранения cookies
-- **⚠️ Known limitation**: Requires one-time manual Google login via `--setup`. This is inherent to browser automation — Google blocks automated login to protect accounts. After initial setup, cookies are saved and subsequent runs are automatic.
+## Флаги браузерных движков
 
-## Правила
+| Флаг | Описание |
+|:-----|:---------|
+| `--no-wait` | Выйти сразу после завершения (без Ctrl+C) |
+| `--close-browser` | Закрыть Chrome после работы |
+| `--dump-ui` | Показать все интерактивные элементы (для дебага) |
 
-1. **Не запускать пачкой** — по одному, проверяем результат
-2. **ultra8x, НЕ fast** — fast удорожает процесс
-3. **Perplexity** — будет добавлен позже
-
-## Testing
+## Тесты
 
 ```bash
-# Run all tests
 python3 -m pytest tests/ -v
-
-# Run with coverage
-python3 -m pytest tests/ --cov=engines --cov=scripts
 ```
 
 ## Troubleshooting
 
-| Problem | Solution |
-|:--------|:---------|
-| `No API keys found` | Add keys to `config/keys.env` (format: `PARALLEL_KEY_1=xxx`) |
-| `playwright not found` | Run `pip install playwright && python -m playwright install chromium` |
-| Gemini login fails | Run `python3 engines/gemini_runner.py --setup` to save cookies |
-| All keys exhausted | Get new keys at https://platform.parallel.ai |
-| `research-prompts.md not found` | Ensure `docs/research-prompts.md` exists in project root |
-| Chrome not found | Install Chrome or set custom path in engine config |
+| Проблема | Решение |
+|:---------|:--------|
+| `No API keys found` | Заполни `config/keys.env` |
+| Gemini login fails | Запусти `python3 engines/gemini_runner.py --dump-ui` для диагностики |
+| All keys exhausted | Новые ключи на https://platform.parallel.ai |
+| Chrome not found | Установи Google Chrome |
+| Rate limit | Подожди и перезапусти с `--reuse-existing` |
