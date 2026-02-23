@@ -445,73 +445,44 @@ def _dump_ui(page):
     }""")
 
 
-def navigate_deep_research(page):
-    """Activate Deep Research via Tools menu → Deep Research.
-    
-    Always starts a fresh chat to avoid old buttons interfering.
-    
-    KNOWN ISSUE (Feb 2026): Google moved Deep Research from Tools menu to "Думающая" 
-    (Thinking) mode. Pro mode switched to Gemini 3.1 and Deep Research was removed.
-    This function needs to be updated to:
-    1. Select "Думающая" mode instead of "Pro"
-    2. Deep Research should be available there
-    TODO: Fix mode selection logic
+def select_thinking_mode(page):
+    """Select Думающая (Thinking) mode via the mode picker button.
+
+    Google moved Deep Research from Pro → Thinking mode (Feb 2026).
+    The mode picker shows current mode (Быстрая/Fast/Pro/Думающая/Thinking).
     """
-    print("   → Deep Research...")
-    
-    # Always navigate to fresh /app page (new chat)
-    page.goto(f"{GEMINI_URL}/app", timeout=60000)
-    time.sleep(5)
+    print("   → Selecting Thinking mode...")
 
-    # Step 1: Click "Инструменты" (Tools) button
-    tools_btn = page.locator('button:has-text("Инструменты"), button:has-text("Tools")')
+    mode_btn = page.locator(
+        'button.input-area-switch, [aria-label="Open mode picker"], '
+        'button:has-text("Быстрая"), button:has-text("Fast"), '
+        'button:has-text("Pro"), button:has-text("Думающая"), '
+        'button:has-text("Thinking")'
+    )
     try:
-        tools_btn.first.wait_for(state="visible", timeout=10000)
-        tools_btn.first.click()
-        time.sleep(2)
-    except:
-        _screenshot(page, "no_tools")
-        return False
-
-    # Step 2: Click "Deep Research" in the menu
-    dr_item = page.locator('text="Deep Research"')
-    try:
-        dr_item.first.wait_for(state="visible", timeout=5000)
-        dr_item.first.click()
-        time.sleep(3)
-        print("   ✅ Deep Research activated")
-        return True
-    except:
-        _screenshot(page, "no_deep_research")
-        print("   ❌ Deep Research not in Tools menu")
-        return False
-
-
-def select_pro(page):
-    """Select Pro thinking level via the mode picker button ('Быстрая'/'Fast')."""
-    print("   → Pro selection...")
-
-    # The mode picker button: class 'input-area-switch', text 'Быстрая' or 'Fast'
-    mode_btn = page.locator('button.input-area-switch, [aria-label="Open mode picker"], button:has-text("Быстрая"), button:has-text("Fast")')
-    try:
-        if mode_btn.first.is_visible(timeout=3000):
+        if mode_btn.first.is_visible(timeout=5000):
             current = mode_btn.first.inner_text().strip()
-            if "Pro" in current:
-                print(f"   ✅ Already on Pro")
+            if "Думающая" in current or "Thinking" in current:
+                print(f"   ✅ Already on Thinking mode")
                 return True
             _mouse_click(page, mode_btn.first)
             time.sleep(2)
 
-            # Look for Pro in dropdown
-            for sel in ['text="Pro"', '[role="option"]:has-text("Pro")',
-                        '[role="menuitem"]:has-text("Pro")', 'li:has-text("Pro")',
-                        'button:has-text("Pro")', 'mat-option:has-text("Pro")']:
+            # Look for Думающая/Thinking in dropdown
+            for sel in [
+                'text="Думающая"', 'text="Thinking"',
+                '[role="option"]:has-text("Думающая")', '[role="option"]:has-text("Thinking")',
+                '[role="menuitem"]:has-text("Думающая")', '[role="menuitem"]:has-text("Thinking")',
+                'li:has-text("Думающая")', 'li:has-text("Thinking")',
+                'button:has-text("Думающая")', 'button:has-text("Thinking")',
+                'mat-option:has-text("Думающая")', 'mat-option:has-text("Thinking")',
+            ]:
                 try:
-                    pro = page.locator(sel).first
-                    if pro.is_visible(timeout=2000):
-                        _mouse_click(page, pro)
-                        time.sleep(1)
-                        print("   ✅ Pro selected!")
+                    opt = page.locator(sel).first
+                    if opt.is_visible(timeout=2000):
+                        _mouse_click(page, opt)
+                        time.sleep(2)
+                        print("   ✅ Thinking mode selected!")
                         return True
                 except:
                     pass
@@ -531,9 +502,51 @@ def select_pro(page):
     except:
         pass
 
-    print("   ⚠️  Pro not found in mode picker")
-    _screenshot(page, "pro_select")
+    print("   ⚠️  Thinking mode not found in mode picker")
+    _screenshot(page, "thinking_select")
     return False
+
+
+def navigate_deep_research(page):
+    """Activate Deep Research: fresh chat → Thinking mode → Tools → Deep Research.
+
+    Google moved Deep Research to Thinking mode (Feb 2026).
+    Flow: navigate to /app → select Думающая → Tools → Deep Research.
+    """
+    print("   → Deep Research...")
+
+    # Always navigate to fresh /app page (new chat)
+    page.goto(f"{GEMINI_URL}/app", timeout=60000)
+    time.sleep(5)
+
+    # Step 1: Select "Думающая" (Thinking) mode
+    select_thinking_mode(page)
+    time.sleep(2)
+
+    # Step 2: Click "Инструменты" (Tools) button
+    tools_btn = page.locator('button:has-text("Инструменты"), button:has-text("Tools")')
+    try:
+        tools_btn.first.wait_for(state="visible", timeout=10000)
+        tools_btn.first.click()
+        time.sleep(2)
+    except:
+        _screenshot(page, "no_tools")
+        # Deep Research might be auto-active in Thinking mode
+        print("   ℹ️  Tools button not found — Deep Research may be auto-active in Thinking mode")
+        return True
+
+    # Step 3: Click "Deep Research" in the menu
+    dr_item = page.locator('text="Deep Research"')
+    try:
+        dr_item.first.wait_for(state="visible", timeout=5000)
+        dr_item.first.click()
+        time.sleep(3)
+        print("   ✅ Deep Research activated")
+        return True
+    except:
+        _screenshot(page, "no_deep_research")
+        print("   ℹ️  Deep Research not in Tools menu — may be auto-active in Thinking mode")
+        return True
 
 
 def enter_prompt(page, prompt):
@@ -582,31 +595,61 @@ def enter_prompt(page, prompt):
 
 
 def confirm_plan(page):
-    """Click 'Start research' when plan confirmation appears."""
+    """Click 'Start research' / 'Начать исследование' when plan confirmation appears.
+
+    The button may be below the viewport — aggressively scroll before checking.
+    """
     print("   Waiting for research plan...")
 
-    for attempt in range(24):
+    # Selectors for the start button (EN + RU + aria-label variants)
+    BTN_SELECTORS = [
+        'button[aria-label="Start research"]',
+        'button[aria-label="Начать исследование"]',
+        'button:has-text("Start research")',
+        'button:has-text("Начать исследование")',
+    ]
+
+    for attempt in range(36):  # up to 3 min
         time.sleep(5)
-        btn = page.locator('button[aria-label="Start research"]')
-        try:
-            if btn.last.is_visible(timeout=3000):
-                btn.last.scroll_into_view_if_needed()
-                time.sleep(0.5)
-                # Playwright .click() silently fails on this button — use JS click
-                btn.last.evaluate('el => el.click()')
-                time.sleep(5)
-                # Verify research started (stop button appears)
-                stop = page.locator('button[aria-label*="Остановить"], button[aria-label*="Stop"]')
-                try:
-                    if stop.count() > 0 and stop.first.is_visible(timeout=3000):
-                        print("   ✅ Research started!")
-                        return True
-                except:
-                    pass
-                print("   ⚠️  Click may have missed, retrying...")
-                continue
-        except:
-            pass
+
+        # Aggressively scroll down to reveal the button
+        page.evaluate('() => window.scrollTo(0, document.body.scrollHeight)')
+        time.sleep(0.5)
+        # Also scroll any overflow containers that Gemini uses
+        page.evaluate('''() => {
+            document.querySelectorAll('[class*="scroll"], [class*="container"], main, [role="main"]').forEach(el => {
+                if (el.scrollHeight > el.clientHeight + 100) {
+                    el.scrollTop = el.scrollHeight;
+                }
+            });
+        }''')
+        time.sleep(1)
+
+        for sel in BTN_SELECTORS:
+            btn = page.locator(sel)
+            try:
+                if btn.last.is_visible(timeout=2000):
+                    btn.last.scroll_into_view_if_needed()
+                    time.sleep(0.5)
+                    # Playwright .click() silently fails on this button — use JS click
+                    btn.last.evaluate('el => el.click()')
+                    print(f"   → Clicked: {sel}")
+                    time.sleep(5)
+                    # Verify research started (stop button appears)
+                    stop = page.locator('button[aria-label*="Остановить"], button[aria-label*="Stop"]')
+                    try:
+                        if stop.count() > 0 and stop.first.is_visible(timeout=3000):
+                            print("   ✅ Research started!")
+                            return True
+                    except:
+                        pass
+                    print("   ⚠️  Click may have missed, retrying...")
+                    break  # retry outer loop
+            except:
+                pass
+
+        if attempt % 6 == 5:
+            print(f"   ⏳ Still waiting for plan... ({(attempt+1)*5}s)")
 
     # Maybe it started automatically
     print("   ℹ️  No plan confirmation found, continuing")
@@ -821,7 +864,6 @@ def do_research(page, context, prompt, output_file=None):
     print(f"{'─' * 60}")
 
     navigate_deep_research(page)
-    select_pro(page)
 
     if not enter_prompt(page, prompt):
         return None
