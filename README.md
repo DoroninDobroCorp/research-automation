@@ -1,3 +1,165 @@
+🇬🇧 [English](#-english) | 🇷🇺 [Русский](#-русский)
+
+---
+
+# 🇬🇧 English
+
+# 🔬 Research Automation
+
+Automated deep research from three sources with consolidation via Claude Opus.
+
+```
+Prompt → [Parallel AI + Gemini + Perplexity] → 3 raw files → Claude Opus → final report
+```
+
+## Engines
+
+| Engine | Method | Time | Cost |
+|:-------|:-------|:-----|:-----|
+| **Parallel AI** | REST API (ultra8x) | 5–30 min | ~$2.40/request |
+| **Gemini Deep Research** | Chrome + Playwright | 3–10 min | free (rate-limited) |
+| **Perplexity Deep Research** | Chrome + Playwright | 3–10 min | free (Pro) |
+
+Consolidation: **Copilot CLI** (Claude Opus 4.6) — merges all sources into a single report.
+
+## Quick Start
+
+```bash
+# 1. Dependencies
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium
+
+# 2. API keys
+cp config/keys.env.example config/keys.env
+# Fill in config/keys.env — API keys and credentials
+
+# 3. Run (all three sources + consolidation)
+python3 scripts/run_custom.py \
+  -f output/prompts/my-topic.txt \
+  -s my-topic
+```
+
+## Usage
+
+### Full Pipeline (recommended)
+
+```bash
+# All 3 engines in parallel → consolidation
+python3 scripts/run_custom.py -f prompt.txt -s my-topic
+
+# Specific engines only
+python3 scripts/run_custom.py -f prompt.txt -s my-topic --engines parallel,gemini
+
+# Skip engines that already have results
+python3 scripts/run_custom.py -f prompt.txt -s my-topic --reuse-existing
+
+# Consolidate even if some sources failed
+python3 scripts/run_custom.py -f prompt.txt -s my-topic --allow-partial
+```
+
+### Individual Engines
+
+```bash
+# Parallel AI
+python3 engines/parallel_client.py -p "Your query" -o output/result.md
+
+# Gemini Deep Research
+python3 engines/gemini_runner.py -p "Your query" -o output/result.md
+
+# Perplexity Deep Research
+python3 engines/perplexity_runner.py -p "Your query" -o output/result.md
+```
+
+### Standalone Consolidation
+
+```bash
+python3 scripts/consolidate_custom.py --slug my-topic
+```
+
+## Project Structure
+
+```
+research-automation/
+├── engines/
+│   ├── base.py               # BaseEngine ABC, metrics, logging
+│   ├── parallel_client.py    # Parallel AI Task API (ultra8x)
+│   ├── gemini_runner.py      # Gemini Deep Research (Playwright + CDP)
+│   └── perplexity_runner.py  # Perplexity Deep Research (Playwright + CDP)
+├── scripts/
+│   ├── run_custom.py         # Full pipeline: engines → consolidation
+│   ├── run_research.py       # Orchestrator for batch prompts
+│   ├── consolidate.py        # Consolidation for batch prompts
+│   └── consolidate_custom.py # Consolidation for custom queries
+├── config/
+│   ├── keys.env.example      # Template for keys
+│   └── keys.env              # API keys and credentials (not in git)
+├── output/
+│   ├── prompts/              # Prompt files
+│   ├── raw/                  # Raw results from each engine
+│   └── consolidated/         # Final consolidated reports
+├── tests/
+│   └── test_automation.py    # Unit tests (pytest)
+├── requirements.txt
+└── README.md
+```
+
+## Configuration (`config/keys.env`)
+
+```env
+# Parallel AI (https://platform.parallel.ai)
+PARALLEL_KEY_1=your-key-here
+PARALLEL_KEY_2=
+PARALLEL_KEY_3=
+
+# Google account for Gemini
+GEMINI_EMAIL=your@gmail.com
+GEMINI_PASSWORD=your-password
+
+# Perplexity account
+PERPLEXITY_EMAIL=your@email.com
+PERPLEXITY_PASSWORD=your-password
+```
+
+## How Browser-Based Engines Work
+
+Gemini and Perplexity use a **real Chrome** instance via CDP (Chrome DevTools Protocol):
+
+1. Chrome launches with a persistent profile → cookies are preserved between runs
+2. Playwright connects via CDP → controls the page
+3. Stealth scripts hide automation from bot detection
+4. After completion, Chrome is closed (in pipeline mode) or left open (in manual mode)
+
+**First run** — you may need to log in manually (2FA, CAPTCHA). Cookies will be saved for subsequent runs.
+
+## Browser Engine Flags
+
+| Flag | Description |
+|:-----|:------------|
+| `--no-wait` | Exit immediately after completion (no Ctrl+C needed) |
+| `--close-browser` | Close Chrome after finishing |
+| `--dump-ui` | Show all interactive elements (for debugging) |
+
+## Tests
+
+```bash
+python3 -m pytest tests/ -v
+```
+
+## Troubleshooting
+
+| Problem | Solution |
+|:--------|:---------|
+| `No API keys found` | Fill in `config/keys.env` |
+| Gemini login fails | Run `python3 engines/gemini_runner.py --dump-ui` to diagnose |
+| All keys exhausted | Get new keys at https://platform.parallel.ai |
+| Chrome not found | Install Google Chrome |
+| Rate limit | Wait and restart with `--reuse-existing` |
+
+---
+
+# 🇷🇺 Русский
+
 # 🔬 Research Automation
 
 Автоматический deep research из трёх источников с консолидацией через Claude Opus.
